@@ -11,6 +11,7 @@ import AIIntegration from "./pages/AIIntegration";
 import Pricing from "./pages/Pricing";
 import Documentation from "./pages/Documentation";
 import AuthLayout from "./components/auth/AuthLayout";
+import TodoistFooter from "./components/Footer";
 
 // Provide a properly formatted fallback key for development
 const publishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || 'pk_test_Y2xlcmsuZGVjZW50cmFsaXplZHRvZG8uY29t';
@@ -83,6 +84,7 @@ const App = () => (
             />
           </Routes>
         </BrowserRouter>
+        <TodoistFooter />
       </TooltipProvider>
     </QueryClientProvider>
   </ClerkProvider>

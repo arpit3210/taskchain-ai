@@ -3,7 +3,8 @@ import { ArrowRight } from "lucide-react";
 
 const CTA = () => {
   return (
-    <section className="py-24 bg-gradient-to-br from-blockchain-primary to-ai-primary relative overflow-hidden">
+    // <section className="py-24 bg-gradient-to-br from-blockchain-primary to-ai-primary relative overflow-hidden">
+    <section className="py-24  relative overflow-hidden">
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center max-w-3xl mx-auto">

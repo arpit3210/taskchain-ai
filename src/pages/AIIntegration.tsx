@@ -1,17 +1,17 @@
 import Navbar from "@/components/Navbar";
 import { Brain, Sparkles, Zap } from "lucide-react";
-import CTA from "@/components/CTA";
+
 
 const AIIntegration = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Navbar - 15vh */}
-      <div className="h-[15vh]">
+     
         <Navbar />
-      </div>
+  
 
       {/* Hero Section - 85vh */}
-      <section className="h-[85vh] relative overflow-hidden bg-gradient-to-br from-ai-primary via-blockchain-primary to-ai-secondary flex items-center">
+      {/* <section className="h-[85vh] relative overflow-hidden bg-gradient-to-br from-ai-primary via-blockchain-primary to-ai-secondary flex items-center">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center space-y-6 animate-fade-up">
@@ -23,10 +23,10 @@ const AIIntegration = () => {
             </p>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Features Section - 85vh */}
-      <section className="h-[85vh] bg-gradient-to-br from-blockchain-dark to-ai-primary flex items-center">
+      <section className=" bg-gradient-to-br h-[96vh] from-blockchain-dark to-ai-primary flex items-center">
         <div className="container mx-auto px-4 py-16">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             <div className="p-8 rounded-xl bg-white/10 backdrop-blur-lg border border-white/20 hover:border-white/30 transition-all duration-300 group animate-fade-up">
@@ -62,10 +62,8 @@ const AIIntegration = () => {
         </div>
       </section>
 
-      {/* CTA Section - 85vh */}
-      <section className="h-[85vh] flex items-center">
-        <CTA />
-      </section>
+
+   
     </div>
   );
 };

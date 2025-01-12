@@ -1,6 +1,6 @@
 import Navbar from "@/components/Navbar";
 import { Book, Code, FileText, MessageSquare } from "lucide-react";
-import CTA from "@/components/CTA";
+
 
 const Documentation = () => {
   return (
@@ -50,7 +50,7 @@ const Documentation = () => {
           </div>
         </div>
       </div>
-      <CTA />
+
     </div>
   );
 };

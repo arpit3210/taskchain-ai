@@ -1,6 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Features from "@/components/Features";
-import CTA from "@/components/CTA";
+
 
 const FeaturesPage = () => {
   return (
@@ -9,7 +9,7 @@ const FeaturesPage = () => {
       <div className="pt-16">
         <Features />
       </div>
-      <CTA />
+ 
     </div>
   );
 };
