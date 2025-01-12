@@ -11,6 +11,7 @@ import AIIntegration from "./pages/AIIntegration";
 import Pricing from "./pages/Pricing";
 import Documentation from "./pages/Documentation";
 import AuthLayout from "./components/auth/AuthLayout";
+import Dashboard from "./pages/Dashboard";
 // import TodoistFooter from "./components/Footer";
 
 import { SignedIn, SignedOut, RedirectToSignIn } from "@clerk/clerk-react";
@@ -50,10 +51,11 @@ const App = () => (
             />
             {/* Protected routes */}
             <Route
-              path="/dashboard"
+              path="/Dashboard"
               element={
                 <SignedIn>
-                  {/* Your dashboard component */}
+                  {/* Your Dashboard component */}
+                  <Dashboard />
                 </SignedIn>
               }
             />
@@ -67,7 +69,8 @@ const App = () => (
             />
 
 
-
+            {/* Route for dashboard    */}
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/" element={<Index />} />
             <Route path="/features" element={<Features />} />
             <Route path="/how-it-works" element={<HowItWorks />} />

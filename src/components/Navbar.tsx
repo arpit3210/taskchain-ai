@@ -51,7 +51,7 @@ const Navbar = () => {
           </SignedOut>
 
           <SignedIn>
-            <Link to="/dashboard">
+            <Link to="/Dashboard">
               <Button 
                 className="bg-gradient-to-r from-blockchain-primary to-ai-primary hover:opacity-90 transition-opacity mr-2"
                 size="sm"

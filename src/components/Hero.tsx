@@ -56,7 +56,7 @@ const Hero = () => {
                 className="bg-gradient-to-r from-[#FEF7CD] to-[#F97316] text-blockchain-dark hover:opacity-90 transition-opacity"
                 asChild
               >
-                <Link to="/dashboard">
+                <Link to="/Dashboard">
                   Go to My Workspace <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
