@@ -1,3 +1,7 @@
+import { Task } from '@/types/dashboard'
+
+
+
 interface TaskCardProps {
     task: Task;
   }
