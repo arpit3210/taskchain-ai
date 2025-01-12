@@ -55,29 +55,26 @@ export function SlidingSidebar({ user }: SlidingSidebarProps) {
     </button>
   )
 
-  // Render sidebar content
-  const renderSidebarContent = (collapsed: boolean) => (
+// Render sidebar content
+const renderSidebarContent = (collapsed: boolean) => (
     <>
       {/* Logo */}
       <div className={cn(
-        "p-6",
+        "p-6 bg-white/10 backdrop-blur-sm",
         collapsed ? "text-center" : ""
       )}>
-        <h1 className="text-2xl font-semibold">
-          <span className="text-white">Dash</span>
-          <span className={cn(
-            "text-black",
-            collapsed ? "hidden" : "inline"
-          )}>board</span>
+        <h1 className="text-2xl font-bold text-white">
+          {/* <span>Task</span>
+          <span className="text-black">Chain</span> */}
         </h1>
       </div>
 
       {/* Profile */}
       <div className={cn(
-        "flex flex-col items-center px-6 py-4",
+        "flex flex-col items-center px-6 py-4 bg-white/5 backdrop-blur-sm",
         collapsed ? "px-2" : ""
       )}>
-        <div className="relative w-16 h-16 mb-4">
+        <div className="relative w-20 h-20 mb-4 ring-4 ring-white/30 rounded-full">
           <img
             src={user.avatar}
             alt="Profile"
@@ -86,7 +83,7 @@ export function SlidingSidebar({ user }: SlidingSidebarProps) {
         </div>
         {!collapsed && (
           <>
-            <h2 className="text-white text-lg font-semibold">{user.name}</h2>
+            <h2 className="text-white text-lg font-semibold mt-2">{user.name}</h2>
             <p className="text-white/80 text-sm">{user.email}</p>
           </>
         )}
@@ -99,13 +96,16 @@ export function SlidingSidebar({ user }: SlidingSidebarProps) {
             <li key={item.label}>
               <button
                 className={cn(
-                  "w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors",
-                  item.active ? "bg-white/10" : "hover:bg-white/5",
+                  "w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-300",
+                  "hover:bg-white/20 active:scale-95",
+                  item.active 
+                    ? "bg-white/20 text-white" 
+                    : "text-white/80 hover:text-white",
                   collapsed ? "justify-center" : ""
                 )}
               >
-                <item.icon className="w-5 h-5 text-white" />
-                {!collapsed && <span className="text-white">{item.label}</span>}
+                <item.icon className="w-5 h-5" />
+                {!collapsed && <span>{item.label}</span>}
               </button>
             </li>
           ))}
@@ -115,12 +115,14 @@ export function SlidingSidebar({ user }: SlidingSidebarProps) {
       {/* Logout */}
       <button 
         className={cn(
-          "absolute bottom-8 flex items-center space-x-3 px-4 py-3 hover:bg-white/5 rounded-lg transition-colors",
+          "absolute bottom-8 flex items-center space-x-3 px-4 py-3",
+          "hover:bg-white/20 rounded-lg transition-all duration-300",
+          "text-white/80 hover:text-white active:scale-95",
           collapsed ? "left-1/2 -translate-x-1/2" : "left-6"
         )}
       >
-        <LogOutIcon className="w-5 h-5 text-white" />
-        {!collapsed && <span className="text-white">Logout</span>}
+        <LogOutIcon className="w-5 h-5" />
+        {!collapsed && <span>Logout</span>}
       </button>
     </>
   )
@@ -133,20 +135,21 @@ export function SlidingSidebar({ user }: SlidingSidebarProps) {
       {/* Desktop/Tablet Sidebar */}
       <div
         className={cn(
-          "h-screen bg-[#FF7B7B] transition-all duration-300 ease-in-out fixed top-0 left-0 z-50",
-          // Desktop behavior
+          "h-screen transition-all duration-300 ease-in-out fixed top-0 left-0 z-50",
           "hidden lg:block", // Hidden on mobile, visible on large screens
+          "bg-gradient-to-br from-[#7E69AB] via-[#33C3F0] to-[#0EA5E9]", // Matching gradient
+          "shadow-2xl", // Added shadow for depth
           isCollapsed ? "w-20" : "w-72"
         )}
       >
         {/* Toggle button for desktop */}
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="absolute -right-3 top-8 bg-white rounded-full p-1 shadow-md hover:bg-gray-100 transition-colors"
+          className="absolute z-50 -right-3 top-8 bg-white/20 backdrop-blur-sm rounded-full p-1 shadow-md hover:bg-white/30 transition-colors"
         >
           <ChevronRightIcon 
             className={cn(
-              "h-4 w-4 text-[#FF7B7B] transition-transform duration-300",
+              "h-4 w-4 text-white transition-transform duration-300",
               isCollapsed ? "rotate-0" : "rotate-180"
             )} 
           />
@@ -158,8 +161,10 @@ export function SlidingSidebar({ user }: SlidingSidebarProps) {
       {/* Mobile Sidebar */}
       <div 
         className={cn(
-          "fixed top-0 left-0 w-72 bg-[#FF7B7B] h-screen z-50 transition-transform duration-300 ease-in-out",
+          "fixed top-0 left-0 w-72 h-screen z-50 transition-transform duration-300 ease-in-out",
           "lg:hidden", // Only visible on mobile
+          "bg-gradient-to-br from-[#7E69AB] via-[#33C3F0] to-[#0EA5E9]", // Matching gradient
+          "shadow-2xl", // Added shadow for depth
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
@@ -169,7 +174,7 @@ export function SlidingSidebar({ user }: SlidingSidebarProps) {
       {/* Mobile Overlay */}
       {(isMobile && isMobileMenuOpen) && (
         <div 
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
           onClick={toggleMobileMenu}
         />
       )}
