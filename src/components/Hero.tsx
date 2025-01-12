@@ -1,8 +1,15 @@
+import React from 'react';
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Brain, Lock, Smartphone } from "lucide-react";
+import { Link } from 'react-router-dom';
+import { SignedIn, SignedOut, useUser } from "@clerk/clerk-react";
 import Stats from "./Stats";
+import TodoistFooter from "./Footer";
+
 
 const Hero = () => {
+  const { user } = useUser();
+
   return (
     <div className="relative min-h-screen flex flex-col justify-center overflow-hidden bg-gradient-to-br from-[#7E69AB] via-[#33C3F0] to-[#0EA5E9]">
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff12_1px,transparent_1px),linear-gradient(to_bottom,#ffffff12_1px,transparent_1px)] bg-[size:24px_24px]"></div>
@@ -21,42 +28,53 @@ const Hero = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8 animate-fade-up [animation-delay:400ms]">
-            <Button size="lg" className="bg-gradient-to-r from-[#FEF7CD] to-[#F97316] text-blockchain-dark hover:opacity-90 transition-opacity">
-              Try Demo <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-            <Button 
-              size="lg" 
-              variant="outline" 
-              className="border-2 border-white text-Gradient-to-r from-[#FEF7CD] to-[#F97316] hover:bg-white/20 backdrop-blur-sm transition-all duration-300 shadow-[0_0_15px_rgba(255,255,255,0.3)] hover:shadow-[0_0_20px_rgba(255,255,255,0.5)]"
-            >
-              Watch How it Works
-            </Button>
+            <SignedOut>
+              <Button 
+                size="lg" 
+                className="bg-gradient-to-r from-[#FEF7CD] to-[#F97316] text-blockchain-dark hover:opacity-90 transition-opacity"
+                asChild
+              >
+                <Link to="/signup">
+                  Try Demo <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="border-2 border-white text-gray-500 hover:bg-white/20 backdrop-blur-sm transition-all duration-300 shadow-[0_0_15px_rgba(255,255,255,0.3)] hover:shadow-[0_0_20px_rgba(255,255,255,0.5)]"
+                asChild
+              >
+                <Link to="/how-it-works">
+                  Watch How it Works
+                </Link>
+              </Button>
+            </SignedOut>
+
+            <SignedIn>
+              <Button 
+                size="lg" 
+                className="bg-gradient-to-r from-[#FEF7CD] to-[#F97316] text-blockchain-dark hover:opacity-90 transition-opacity"
+                asChild
+              >
+                <Link to="/dashboard">
+                  Go to My Workspace <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="border-2 border-white text-gray-500 hover:bg-white/20 backdrop-blur-sm transition-all duration-300 shadow-[0_0_15px_rgba(255,255,255,0.3)] hover:shadow-[0_0_20px_rgba(255,255,255,0.5)]"
+                asChild
+              >
+                <Link to="/how-it-works">
+                  Explore Features
+                </Link>
+              </Button>
+            </SignedIn>
           </div>
-          
-          {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
-            <div className="p-6 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 animate-float hover:bg-white/20 transition-all duration-3000">
-              <Lock className="h-8 w-8 text-[#FEF7CD] mb-4 mx-auto" />
-              <h3 className="text-lg font-semibold text-white">Decentralized Security</h3>
-              <p className="text-white/90 mt-2">Your tasks are secured by blockchain technology</p>
-            </div>
-            
-            <div className="p-6 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 animate-float [animation-delay:200ms] hover:bg-white/20 transition-all duration-3000">
-              <Brain className="h-8 w-8 text-[#F97316] mb-4 mx-auto" />
-              <h3 className="text-lg font-semibold text-white">AI-Powered Intelligence</h3>
-              <p className="text-white/90 mt-2">Smart task prioritization and insights</p>
-            </div>
-            
-            <div className="p-6 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 animate-float [animation-delay:400ms] hover:bg-white/20 transition-all duration-3000">
-              <Smartphone className="h-8 w-8 text-[#33C3F0] mb-4 mx-auto" />
-              <h3 className="text-lg font-semibold text-white">Seamless Integration</h3>
-              <p className="text-white/90 mt-2">Works across all your devices</p>
-            </div>
-          </div> */}
-
-
         </div>
         
-        <Stats />
+        <Stats /> 
       </div>
     </div>
   );

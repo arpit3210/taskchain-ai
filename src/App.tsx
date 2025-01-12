@@ -11,7 +11,12 @@ import AIIntegration from "./pages/AIIntegration";
 import Pricing from "./pages/Pricing";
 import Documentation from "./pages/Documentation";
 import AuthLayout from "./components/auth/AuthLayout";
-import TodoistFooter from "./components/Footer";
+// import TodoistFooter from "./components/Footer";
+
+import { SignedIn, SignedOut, RedirectToSignIn } from "@clerk/clerk-react";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+
 
 // Provide a properly formatted fallback key for development
 const publishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || 'pk_test_Y2xlcmsuZGVjZW50cmFsaXplZHRvZG8uY29t';
@@ -26,6 +31,43 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
+            {/* Existing routes */}
+            <Route
+              path="/login"
+              element={
+                <SignedOut>
+                  <Login />
+                </SignedOut>
+              }
+            />
+            <Route
+              path="/signup"
+              element={
+                <SignedOut>
+                  <Signup />
+                </SignedOut>
+              }
+            />
+            {/* Protected routes */}
+            <Route
+              path="/dashboard"
+              element={
+                <SignedIn>
+                  {/* Your dashboard component */}
+                </SignedIn>
+              }
+            />
+            <Route
+              path="*"
+              element={
+                <SignedIn>
+                  <RedirectToSignIn />
+                </SignedIn>
+              }
+            />
+
+
+
             <Route path="/" element={<Index />} />
             <Route path="/features" element={<Features />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
@@ -35,14 +77,14 @@ const App = () => (
             <Route
               path="/sign-in/*"
               element={
-                <AuthLayout 
-                  title="Welcome Back" 
+                <AuthLayout
+                  title="Welcome Back"
                   description="Sign in to continue to DecentralizedToDo"
                 >
-                  <SignIn 
+                  <SignIn
                     appearance={{
                       elements: {
-                        formButtonPrimary: 
+                        formButtonPrimary:
                           "bg-gradient-to-r from-[#FEF7CD] to-[#F97316] text-blockchain-dark hover:opacity-90 transition-opacity",
                         card: "bg-transparent shadow-none",
                         headerTitle: "text-white",
@@ -60,14 +102,14 @@ const App = () => (
             <Route
               path="/sign-up/*"
               element={
-                <AuthLayout 
-                  title="Create Account" 
+                <AuthLayout
+                  title="Create Account"
                   description="Sign up to get started with DecentralizedToDo"
                 >
-                  <SignUp 
+                  <SignUp
                     appearance={{
                       elements: {
-                        formButtonPrimary: 
+                        formButtonPrimary:
                           "bg-gradient-to-r from-[#FEF7CD] to-[#F97316] text-blockchain-dark hover:opacity-90 transition-opacity",
                         card: "bg-transparent shadow-none",
                         headerTitle: "text-white",
@@ -84,7 +126,7 @@ const App = () => (
             />
           </Routes>
         </BrowserRouter>
-        <TodoistFooter />
+        {/* <TodoistFooter /> */}
       </TooltipProvider>
     </QueryClientProvider>
   </ClerkProvider>
