@@ -13,6 +13,8 @@ import Documentation from "./pages/Documentation";
 import AuthLayout from "./components/auth/AuthLayout";
 import Dashboard from "./pages/Dashboard";
 // import TodoistFooter from "./components/Footer";
+import DashboardCompleted from "./pages/Dashboard_Complted";
+import DashboardInProgress from "./pages/Dashboard_InProgress";
 
 import { SignedIn, SignedOut, RedirectToSignIn } from "@clerk/clerk-react";
 import Login from "./pages/Login";
@@ -56,6 +58,26 @@ const App = () => (
                 <SignedIn>
                   {/* Your Dashboard component */}
                   <Dashboard />
+                  {/* <DashboardCompleted />
+                  <DashboardInProgress /> */}
+                </SignedIn>
+              }
+            />
+                  <Route
+              path="/inprogress"
+              element={
+                <SignedIn>
+                  {/* Your Dashboard component */}
+                  <DashboardInProgress />
+                </SignedIn>
+              }
+            />
+                  <Route
+              path="/completed"
+              element={
+                <SignedIn>
+                  {/* Your Dashboard component */}
+                  <DashboardCompleted /> 
                 </SignedIn>
               }
             />
@@ -70,6 +92,10 @@ const App = () => (
 
 
             {/* Route for dashboard    */}
+            <Route path="/dashboard-completed" element={<DashboardCompleted />} />
+            <Route path="/dashboard-in-progress" element={<DashboardInProgress />} />
+            
+
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/" element={<Index />} />
             <Route path="/features" element={<Features />} />

@@ -51,42 +51,6 @@ export default function Dashboard() {
             createdOn: '20/06/2023',
             image: 'https://v0.dev/placeholder.svg'
           },
-          {
-            id: '1',
-            title: "Attend Nischal's Birthday Party",
-            description: "Buy gifts on the way and pick up cake from the bakery. (6 PM | Fresh Elements)....",
-            priority: 'Moderate',
-            status: 'Not Started',
-            createdOn: '20/06/2023',
-            image: 'https://v0.dev/placeholder.svg'
-          },
-          {
-              id: '2',
-              title: "Attend Nischal's Birthday Party",
-              description: "Buy gifts on the way and pick up cake from the bakery. (6 PM | Fresh Elements)....",
-              priority: 'Moderate',
-              status: 'Completed',
-              createdOn: '20/06/2023',
-              image: 'https://v0.dev/placeholder.svg'
-            },
-            {
-              id: '3',
-              title: "Attend Nischal's Birthday Party",
-              description: "Buy gifts on the way and pick up cake from the bakery. (6 PM | Fresh Elements)....",
-              priority: 'Moderate',
-              status: 'Not Started',
-              createdOn: '20/06/2023',
-              image: 'https://v0.dev/placeholder.svg'
-            },
-            {
-              id: '4',
-              title: "Attend Nischal's Birthday Party",
-              description: "Buy gifts on the way and pick up cake from the bakery. (6 PM | Fresh Elements)....",
-              priority: 'Moderate',
-              status: 'In Progress',
-              createdOn: '20/06/2023',
-              image: 'https://v0.dev/placeholder.svg'
-            },
         // Add more tasks...
       ])
     
@@ -125,11 +89,11 @@ export default function Dashboard() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 space-y-6">
                 <div className="flex justify-between items-center">
-                  <h2 className="text-lg font-semibold">To-Do</h2>
+                  <h2 className="text-lg font-semibold">In Progress Task</h2>
                   <button className="text-[#FF7B7B]">+ Add task</button>
                 </div>
                 <div className="space-y-4">
-                  {tasks.filter(task => task.status === 'Not Started').map(task => (
+                  {tasks.filter(task => task.status === 'In Progress').map(task => (
                     <TaskCard key={task.id} task={task} />
                   ))}
                 </div>
@@ -138,21 +102,18 @@ export default function Dashboard() {
               <div className="space-y-6">
                 <TaskStatus status={taskStatus} />
                 
-
-
                 <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-                  <h2 className="text-lg font-semibold mb-4">In Progress Task</h2>
+                  <h2 className="text-lg font-semibold mb-4">ToDo Task</h2>
                   <div className="space-y-4">
-                    {tasks.filter(task => task.status === 'In Progress').map(task => (
+                    {tasks.filter(task => task.status === 'Not Started').map(task => (
                       <TaskCard key={task.id} task={task} />
                     ))}
                   </div>
-
-                <Link to="/inprogress">
+                  <Link to="/Dashboard">
                   <p className='text-[#8a8a8a] text-sm text-center cursor-pointer py-4'>Open More Tasks</p>
                 </Link>
-                </div>
 
+                </div>
 
                 <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
                   <h2 className="text-lg font-semibold mb-4">Completed Task</h2>
@@ -161,13 +122,10 @@ export default function Dashboard() {
                       <TaskCard key={task.id} task={task} />
                     ))}
                   </div>
-
                   <Link to="/completed">
                   <p className='text-[#8a8a8a] text-sm text-center cursor-pointer py-4'>Open More Tasks</p>
                 </Link>
-
                 </div>
-
               </div>
             </div>
           </div>
