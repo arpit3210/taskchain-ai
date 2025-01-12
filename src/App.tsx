@@ -12,14 +12,13 @@ import Pricing from "./pages/Pricing";
 import Documentation from "./pages/Documentation";
 import AuthLayout from "./components/auth/AuthLayout";
 
-if (!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY) {
-  throw new Error("Missing Clerk Publishable Key");
-}
+// Provide a fallback key for development
+const publishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || 'pk_test_dummy-key-for-development';
 
 const queryClient = new QueryClient();
 
 const App = () => (
-  <ClerkProvider publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}>
+  <ClerkProvider publishableKey={publishableKey}>
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
