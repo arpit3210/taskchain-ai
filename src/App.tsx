@@ -12,8 +12,8 @@ import Pricing from "./pages/Pricing";
 import Documentation from "./pages/Documentation";
 import AuthLayout from "./components/auth/AuthLayout";
 
-// Provide a fallback key for development
-const publishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || 'pk_test_dummy-key-for-development';
+// Provide a properly formatted fallback key for development
+const publishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || 'pk_test_Y2xlcmsuZGVjZW50cmFsaXplZHRvZG8uY29t';
 
 const queryClient = new QueryClient();
 
