@@ -8,8 +8,8 @@ import { SignOutButton } from "@clerk/clerk-react"
 import { useUser } from "@clerk/clerk-react"
 
 
-interface SlidingSidebarProps {
-}
+// interface SlidingSidebarProps {
+// }
 
 export function SlidingSidebar() {
   const { isLoaded, isSignedIn, user } = useUser()

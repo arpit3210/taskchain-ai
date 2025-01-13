@@ -3,9 +3,11 @@ import { SlidingSidebar } from "@/components/sliding-sidebar";
 import { Header } from "@/DashboardComponents/header";
 import { TaskCard } from "@/DashboardComponents/task-card";
 import { TaskStatus } from "@/DashboardComponents/task-status";
+import { AddTaskModal } from '@/components/AddTaskModal';
+import { Button } from '@/components/ui/button';
+import { PlusIcon } from 'lucide-react';
 import { User, Task, TaskStatus as TaskStatusType } from "@/types/dashboard";
 import { Link } from 'react-router-dom';
-
 
 export default function Dashboard() {
     const [user] = useState<User>({
@@ -59,16 +61,28 @@ export default function Dashboard() {
         inProgress: 46,
         notStarted: 13
       })
+      const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
+
+      const handleAddTask = (taskData: any) => {
+        // Implement task addition logic
+        // This could involve calling an API, updating state, etc.
+        console.log('New Task Added:', taskData);
+        
+        // Optionally close the modal after adding task
+        setIsAddTaskModalOpen(false);
+      };
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <SlidingSidebar user={user} />
+      <SlidingSidebar  />
+      
       <main className="transition-all duration-300 ease-in-out 
         sm:pl-20 
         lg:pl-72 
         min-h-screen 
         p-4 
         sm:p-6">
+ 
         <div className="flex-1">
           <Header 
             date="20/06/2023"
@@ -90,7 +104,8 @@ export default function Dashboard() {
               <div className="lg:col-span-2 space-y-6">
                 <div className="flex justify-between items-center">
                   <h2 className="text-lg font-semibold">Completed Task</h2>
-                  <button className="text-[#FF7B7B]">+ Add task</button>
+                          {/* Add Task Button */}
+                  <button onClick={() => setIsAddTaskModalOpen(true)} className="text-[#FF7B7B]">+ Add task</button>
                 </div>
                 <div className="space-y-4">
                   {tasks.filter(task => task.status === 'Completed').map(task => (
@@ -100,6 +115,10 @@ export default function Dashboard() {
               </div>
 
               <div className="space-y-6">
+                       
+
+
+
                 <TaskStatus status={taskStatus} />
                 
                 <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
@@ -129,6 +148,13 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+        
+        {/* Add Task Modal */}
+        <AddTaskModal 
+          isOpen={isAddTaskModalOpen}
+          onOpenChange={setIsAddTaskModalOpen}
+          onAddTask={handleAddTask}
+        />
       </main>
     </div>
   )
