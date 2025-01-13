@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils"
 
 import { SignOutButton } from "@clerk/clerk-react"
 import { useUser } from "@clerk/clerk-react"
+// import { DatabaseStatus } from "./DatabaseStatus"
 
 
 // interface SlidingSidebarProps {
@@ -59,6 +60,9 @@ export function SlidingSidebar() {
   const renderSidebarContent = (collapsed: boolean) => (
     <>
       {/* Logo */}
+
+      {/* <DatabaseStatus /> */}
+
       <div className={cn(
         "p-6 bg-white/10 backdrop-blur-sm",
         collapsed ? "text-center" : ""

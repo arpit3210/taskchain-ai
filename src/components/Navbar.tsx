@@ -9,6 +9,7 @@ import {
 } from "@clerk/clerk-react";
 import { Button } from "@/components/ui/button";
 
+
 const Navbar = () => {
   const { user } = useUser();
 
@@ -22,7 +23,7 @@ const Navbar = () => {
             DecentralizedToDo
           </span>
         </Link>
-
+    
         {/* Navigation Links */}
         <div className="hidden md:flex space-x-6">
           <Link to="/features" className="text-sm font-medium hover:text-blockchain-primary transition-colors">

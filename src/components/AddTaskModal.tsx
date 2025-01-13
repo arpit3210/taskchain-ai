@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
+import { useUser } from "@clerk/clerk-react";
+
+import { ITask } from '@/models/Task';
+import { useTasks } from '@/hooks/useTasks';
+import { createTask } from '@/lib/api';
+
 import { zodResolver } from '@hookform/resolvers/zod';
 import { 
   Dialog, 
@@ -19,7 +25,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
-import { CalendarIcon, ImageIcon, TagIcon } from 'lucide-react';
+import { CalendarIcon, ImageIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -27,7 +33,6 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 // Zod Schema for Task Validation
-// Update the Zod schema
 const taskSchema = z.object({
     title: z.string().min(3, "Title must be at least 3 characters"),
     description: z.string().optional(),
@@ -39,31 +44,24 @@ const taskSchema = z.object({
     }),
     dueDate: z.date().optional(),
     image: z.string().url("Invalid image URL").optional(),
-    createdOn: z.string() // Add this line
-  });
+});
 
-  type TaskFormData = {
-    title: string;
-    description?: string;
-    priority: 'Low' | 'Moderate' | 'High';
-    status: 'Not Started' | 'In Progress' | 'Completed';
-    dueDate?: Date;
-    image?: string;
-    createdOn: string;
-  }
+type TaskFormData = z.infer<typeof taskSchema>;
 
 interface AddTaskModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onAddTask: (task: TaskFormData) => void;
+  onAddTask?: (taskData: Partial<ITask>) => void;
 }
 
 export function AddTaskModal({ 
   isOpen, 
-  onOpenChange, 
-  onAddTask 
+  onOpenChange,
+  onAddTask
 }: AddTaskModalProps) {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const { user } = useUser();
+  const { addTask, reloadTasks } = useTasks();
 
   const { 
     control, 
@@ -79,16 +77,40 @@ export function AddTaskModal({
     }
   });
 
-  const onSubmit = (data: TaskFormData) => {
-    try {
-      onAddTask({
-        ...data,
-        createdOn: format(new Date(), 'dd/MM/yyyy')
+  const onSubmit = async (data: TaskFormData) => {
+    if (!user) {
+      toast.error("Authentication required", {
+        description: "Please log in to create a task."
       });
+      return;
+    }
+
+    try {
+      const taskToCreate: Partial<ITask> = {
+        title: data.title,
+        description: data.description,
+        priority: data.priority,
+        status: data.status,
+        userId: user.id,
+        createdOn: new Date(),
+        dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
+        image: data.image
+      };
+
+      // Use local addTask method from useTasks hook
+      await addTask(taskToCreate);
+      
+      // Call onAddTask prop if provided
+      if (onAddTask) {
+        onAddTask(taskToCreate);
+      }
       
       toast.success("Task Added Successfully!", {
         description: `Task "${data.title}" has been created.`
       });
+
+      // Reload tasks to reflect the new addition
+      await reloadTasks();
 
       // Reset form and close modal
       reset();
@@ -110,6 +132,8 @@ export function AddTaskModal({
       reader.readAsDataURL(file);
     }
   };
+
+  if (!user) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>

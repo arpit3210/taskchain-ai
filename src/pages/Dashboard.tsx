@@ -53,7 +53,7 @@ export default function Dashboard() {
       image: 'https://v0.dev/placeholder.svg'
     },
     {
-      id: '1',
+      id: '5',
       title: "Attend Nischal's Birthday Party",
       description: "Buy gifts on the way and pick up cake from the bakery. (6 PM | Fresh Elements)....",
       priority: 'Moderate',
@@ -62,7 +62,7 @@ export default function Dashboard() {
       image: 'https://v0.dev/placeholder.svg'
     },
     {
-      id: '2',
+      id: '6',
       title: "Attend Nischal's Birthday Party",
       description: "Buy gifts on the way and pick up cake from the bakery. (6 PM | Fresh Elements)....",
       priority: 'Moderate',
@@ -71,7 +71,7 @@ export default function Dashboard() {
       image: 'https://v0.dev/placeholder.svg'
     },
     {
-      id: '3',
+      id: '7',
       title: "Attend Nischal's Birthday Party",
       description: "Buy gifts on the way and pick up cake from the bakery. (6 PM | Fresh Elements)....",
       priority: 'Moderate',
@@ -80,7 +80,7 @@ export default function Dashboard() {
       image: 'https://v0.dev/placeholder.svg'
     },
     {
-      id: '4',
+      id: '8',
       title: "Attend Nischal's Birthday Party",
       description: "Buy gifts on the way and pick up cake from the bakery. (6 PM | Fresh Elements)....",
       priority: 'Moderate',
