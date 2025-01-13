@@ -25,7 +25,7 @@ export function useTasks() {
     }
   }, [user]);
 
-  const addTask = useCallback(async (taskData: Partial<ITask>) => {
+  const addTask = useCallback(async (taskData: Partial<ITask>, imageFile?: File) => {
     if (!user) {
       throw new Error('User not authenticated');
     }
@@ -33,7 +33,7 @@ export function useTasks() {
     setIsLoading(true);
     setError(null);
     try {
-      const newTask = await createTask(user, taskData);
+      const newTask = await createTask(user, taskData, imageFile);
       setTasks(prevTasks => [...prevTasks, newTask]);
       return newTask;
     } catch (err) {

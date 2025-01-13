@@ -8,6 +8,7 @@ export interface ITask extends mongoose.Document {
   createdOn: Date;
   dueDate?: Date;
   image?: string;
+  imagePublicId?: string;
   userId: string;
 }
 
@@ -36,6 +37,7 @@ const TaskSchema = new mongoose.Schema<ITask>({
     required: false
   },
   image: String,
+  imagePublicId: String,
   userId: {
     type: String,
     required: true

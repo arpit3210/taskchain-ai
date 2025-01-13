@@ -38,7 +38,7 @@ export async function fetchTasks(user: UserResource | null): Promise<ITask[]> {
   }
 }
 
-export async function createTask(user: UserResource | null, taskData: Partial<ITask>): Promise<ITask> {
+export async function createTask(user: UserResource | null, taskData: Partial<ITask>, imageFile?: File): Promise<ITask> {
   if (!user) {
     throw new Error('User not authenticated');
   }
@@ -49,10 +49,32 @@ export async function createTask(user: UserResource | null, taskData: Partial<IT
   }
 
   try {
-    const response = await api.post('/tasks', {
+    // Create FormData for multipart upload
+    const formData = new FormData();
+    
+    // Prepare task payload
+    const taskPayload = {
       ...taskData,
       userId: user.id
+    };
+    console.log('Task Payload:', taskPayload);
+    formData.append('taskData', JSON.stringify(taskPayload));
+
+    // Add image if exists
+    if (imageFile) {
+      console.log('Uploading image:', imageFile);
+      formData.append('image', imageFile);
+    } else {
+      console.log('No image file provided');
+    }
+
+    const response = await axios.post(`${API_BASE_URL}/tasks`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
     });
+    
+    console.log('Task creation response:', response.data);
     return response.data;
   } catch (error) {
     console.error('Error creating task:', error);

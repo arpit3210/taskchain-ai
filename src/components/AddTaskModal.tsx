@@ -2,11 +2,9 @@ import React, { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { useUser } from "@clerk/clerk-react";
-
 import { ITask } from '@/models/Task';
 import { useTasks } from '@/hooks/useTasks';
 import { createTask } from '@/lib/api';
-
 import { zodResolver } from '@hookform/resolvers/zod';
 import { 
   Dialog, 
@@ -31,19 +29,20 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useToast } from "@/components/ui/use-toast";
 
 // Zod Schema for Task Validation
 const taskSchema = z.object({
-    title: z.string().min(3, "Title must be at least 3 characters"),
-    description: z.string().optional(),
-    priority: z.enum(['Low', 'Moderate', 'High'], {
-      errorMap: () => ({ message: "Please select a valid priority" })
-    }),
-    status: z.enum(['Not Started', 'In Progress', 'Completed'], {
-      errorMap: () => ({ message: "Please select a valid status" })
-    }),
-    dueDate: z.date().optional(),
-    image: z.string().url("Invalid image URL").optional(),
+  title: z.string().min(3, "Title must be at least 3 characters"),
+  description: z.string().optional(),
+  priority: z.enum(['Low', 'Moderate', 'High'], {
+    errorMap: () => ({ message: "Please select a valid priority" })
+  }),
+  status: z.enum(['Not Started', 'In Progress', 'Completed'], {
+    errorMap: () => ({ message: "Please select a valid status" })
+  }),
+  dueDate: z.date().optional(),
+  image: z.string().url("Invalid image URL").optional(),
 });
 
 type TaskFormData = z.infer<typeof taskSchema>;
@@ -62,6 +61,7 @@ export function AddTaskModal({
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const { user } = useUser();
   const { addTask, reloadTasks } = useTasks();
+  const { toast } = useToast();
 
   const { 
     control, 
@@ -77,59 +77,72 @@ export function AddTaskModal({
     }
   });
 
-  const onSubmit = async (data: TaskFormData) => {
-    if (!user) {
-      toast.error("Authentication required", {
-        description: "Please log in to create a task."
-      });
-      return;
-    }
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
-    try {
-      const taskToCreate: Partial<ITask> = {
-        title: data.title,
-        description: data.description,
-        priority: data.priority,
-        status: data.status,
-        userId: user.id,
-        createdOn: new Date(),
-        dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
-        image: data.image
-      };
-
-      // Use local addTask method from useTasks hook
-      await addTask(taskToCreate);
-      
-      // Call onAddTask prop if provided
-      if (onAddTask) {
-        onAddTask(taskToCreate);
-      }
-      
-      toast.success("Task Added Successfully!", {
-        description: `Task "${data.title}" has been created.`
-      });
-
-      // Reload tasks to reflect the new addition
-      await reloadTasks();
-
-      // Reset form and close modal
-      reset();
-      onOpenChange(false);
-    } catch (error) {
-      toast.error("Failed to add task", {
-        description: "Please try again later."
-      });
-    }
-  };
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      console.log('Image selected:', file);
+      setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const onSubmit = async (data: TaskFormData) => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to create a task",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      console.log('Submitting task with image:', imageFile);
+      
+      // Prepare task data
+      const taskToCreate: Partial<ITask> = {
+        title: data.title,
+        description: data.description,
+        priority: data.priority,
+        status: data.status,
+        createdOn: new Date(),
+        dueDate: data.dueDate,
+        userId: user.id
+      };
+
+      // Use local addTask method from useTasks hook
+      const newTask = await addTask(taskToCreate, imageFile);
+      
+      // Call onAddTask prop if provided
+      if (onAddTask) {
+        onAddTask(newTask);
+      }
+
+      // Reset form
+      reset();
+      setImageFile(null);
+      setImagePreview(null);
+      onOpenChange(false);
+
+      // Show success toast
+      toast({
+        title: "Success",
+        description: "Task created successfully!",
+        variant: "default"
+      });
+    } catch (error) {
+      console.error('Task creation error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add task. Please try again.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -285,7 +298,7 @@ export function AddTaskModal({
               <Input 
                 type="file" 
                 accept="image/*"
-                onChange={handleImageUpload}
+                onChange={handleImageChange}
                 className="hidden"
                 id="task-image-upload"
               />
