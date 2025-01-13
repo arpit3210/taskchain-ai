@@ -17,26 +17,26 @@ export default function Dashboard() {
   const [tasks] = useState<Task[]>([
     {
       id: '1',
-      title: "Attend Nischal's Birthday Party",
-      description: "Buy gifts on the way and pick up cake from the bakery. (6 PM | Fresh Elements)....",
-      priority: 'Moderate',
+      title: "Implement Web3 login using MetaMask",
+      description: "Research and implement a way to use MetaMask to login to the web3 application.",
+      priority: 'High',
       status: 'Not Started',
       createdOn: '20/06/2023',
       image: 'https://v0.dev/placeholder.svg'
     },
     {
       id: '2',
-      title: "Attend Nischal's Birthday Party",
-      description: "Buy gifts on the way and pick up cake from the bakery. (6 PM | Fresh Elements)....",
-      priority: 'Moderate',
-      status: 'Completed',
+      title: "Develop NFT minting feature",
+      description: "Research and develop a feature to mint NFTs on the Polygon blockchain.",
+      priority: 'High',
+      status: 'In Progress',
       createdOn: '20/06/2023',
       image: 'https://v0.dev/placeholder.svg'
     },
     {
       id: '3',
-      title: "Attend Nischal's Birthday Party",
-      description: "Buy gifts on the way and pick up cake from the bakery. (6 PM | Fresh Elements)....",
+      title: "Create a Web3 wallet using ethers.js",
+      description: "Research and develop a web3 wallet using ethers.js to interact with the Ethereum blockchain.",
       priority: 'Moderate',
       status: 'Not Started',
       createdOn: '20/06/2023',
@@ -44,10 +44,46 @@ export default function Dashboard() {
     },
     {
       id: '4',
-      title: "Attend Nischal's Birthday Party",
-      description: "Buy gifts on the way and pick up cake from the bakery. (6 PM | Fresh Elements)....",
+      title: "Fix Web3.js compatibility issue with Polygon",
+      description: "Research and fix a compatibility issue between Web3.js and the Polygon blockchain.",
+      priority: 'Low',
+      status: 'Completed',
+      createdOn: '20/06/2023',
+      image: 'https://v0.dev/placeholder.svg'
+    },
+    {
+      id: '5',
+      title: "Implement Web3 storage using IPFS",
+      description: "Research and implement a way to store data on the InterPlanetary File System (IPFS) using Web3.",
       priority: 'Moderate',
-      status: 'In Progress',
+      status: 'Not Started',
+      createdOn: '20/06/2023',
+      image: 'https://v0.dev/placeholder.svg'
+    },
+    {
+      id: '6',
+      title: "Research and implement Web3 authentication using uPort",
+      description: "Research and implement a way to use uPort to authenticate users on the web3 application.",
+      priority: 'Low',
+      status: 'Not Started',
+      createdOn: '20/06/2023',
+      image: 'https://v0.dev/placeholder.svg'
+    },
+    {
+      id: '7',
+      title: "Develop a Web3 dapp using React and ethers.js",
+      description: "Research and develop a web3 application using React and ethers.js to interact with the Ethereum blockchain.",
+      priority: 'Moderate',
+      status: 'Not Started',
+      createdOn: '20/06/2023',
+      image: 'https://v0.dev/placeholder.svg'
+    },
+    {
+      id: '8',
+      title: "Research and implement Web3 analytics using Google Analytics",
+      description: "Research and implement a way to use Google Analytics to track analytics on the web3 application.",
+      priority: 'Low',
+      status: 'Not Started',
       createdOn: '20/06/2023',
       image: 'https://v0.dev/placeholder.svg'
     },
