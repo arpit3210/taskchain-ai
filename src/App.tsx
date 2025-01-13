@@ -19,12 +19,28 @@ import DashboardInProgress from "./pages/Dashboard_InProgress";
 import { SignedIn, SignedOut, RedirectToSignIn } from "@clerk/clerk-react";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+// import { ScrollRestoration } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 
 
 // Provide a properly formatted fallback key for development
 const publishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || 'pk_test_Y2xlcmsuZGVjZW50cmFsaXplZHRvZG8uY29t';
 
 const queryClient = new QueryClient();
+
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+}
+
+
 
 const App = () => (
   <ClerkProvider publishableKey={publishableKey}>
@@ -33,6 +49,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+        <ScrollToTop />
           <Routes>
             {/* Existing routes */}
             <Route

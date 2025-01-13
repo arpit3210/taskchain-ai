@@ -4,15 +4,15 @@ import { useState, useEffect } from "react"
 import { HomeIcon, BellIcon, ListIcon, TypeIcon, SettingsIcon, HelpCircleIcon, LogOutIcon, ChevronRightIcon, MenuIcon, XIcon } from 'lucide-react'
 import { cn } from "@/lib/utils"
 
+import { SignOutButton } from "@clerk/clerk-react"
+import { useUser } from "@clerk/clerk-react"
+
+
 interface SlidingSidebarProps {
-  user: {
-    name: string;
-    email: string;
-    avatar: string;
-  }
 }
 
-export function SlidingSidebar({ user }: SlidingSidebarProps) {
+export function SlidingSidebar() {
+  const { isLoaded, isSignedIn, user } = useUser()
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -55,8 +55,8 @@ export function SlidingSidebar({ user }: SlidingSidebarProps) {
     </button>
   )
 
-// Render sidebar content
-const renderSidebarContent = (collapsed: boolean) => (
+  // Render sidebar content
+  const renderSidebarContent = (collapsed: boolean) => (
     <>
       {/* Logo */}
       <div className={cn(
@@ -70,24 +70,26 @@ const renderSidebarContent = (collapsed: boolean) => (
       </div>
 
       {/* Profile */}
-      <div className={cn(
-        "flex flex-col items-center px-6 py-4 bg-white/5 backdrop-blur-sm",
-        collapsed ? "px-2" : ""
-      )}>
-        <div className="relative w-20 h-20 mb-4 ring-4 ring-white/30 rounded-full">
-          <img
-            src={user.avatar}
-            alt="Profile"
-            className="w-full h-full rounded-full object-cover"
-          />
+      {isLoaded && isSignedIn && (
+        <div className={cn(
+          "flex flex-col items-center px-6 py-4 bg-white/5 backdrop-blur-sm",
+          collapsed ? "px-2" : ""
+        )}>
+          <div className="relative w-20 h-20 mb-4 ring-4 ring-white/30 rounded-full">
+            <img
+              src={user.imageUrl}
+              alt="Profile"
+              className="w-full h-full rounded-full object-cover"
+            />
+          </div>
+          {!collapsed && (
+            <>
+              <h2 className="text-white text-lg font-semibold mt-2">{user.fullName || user.username}</h2>
+              <p className="text-white/80 text-sm">{user.primaryEmailAddress?.emailAddress}</p>
+            </>
+          )}
         </div>
-        {!collapsed && (
-          <>
-            <h2 className="text-white text-lg font-semibold mt-2">{user.name}</h2>
-            <p className="text-white/80 text-sm">{user.email}</p>
-          </>
-        )}
-      </div>
+      )}
 
       {/* Navigation */}
       <nav className="px-4 mt-6">
@@ -113,17 +115,19 @@ const renderSidebarContent = (collapsed: boolean) => (
       </nav>
 
       {/* Logout */}
-      <button 
-        className={cn(
-          "absolute bottom-8 flex items-center space-x-3 px-4 py-3",
-          "hover:bg-white/20 rounded-lg transition-all duration-300",
-          "text-white/80 hover:text-white active:scale-95",
-          collapsed ? "left-1/2 -translate-x-1/2" : "left-6"
-        )}
-      >
-        <LogOutIcon className="w-5 h-5" />
-        {!collapsed && <span>Logout</span>}
-      </button>
+      <SignOutButton>
+        <button 
+          className={cn(
+            "absolute bottom-8 flex items-center space-x-3 px-4 py-3",
+            "hover:bg-white/20 rounded-lg transition-all duration-300",
+            "text-white/80 hover:text-white active:scale-95",
+            collapsed ? "left-1/2 -translate-x-1/2" : "left-6"
+          )}
+        >
+          <LogOutIcon className="w-5 h-5" />
+          {!collapsed && <span>Logout</span>}
+        </button>
+      </SignOutButton>
     </>
   )
 
