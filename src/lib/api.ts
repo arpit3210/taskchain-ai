@@ -72,18 +72,22 @@ export async function createTask(user: UserResource | null, taskData: Partial<Ta
     // Prepare task payload
     const taskPayload = {
       title: taskData.title,
-      description: taskData.description,
+      description: taskData.description || '',
       priority: taskData.priority || 'Moderate',
       status: taskData.status || 'Not Started',
       createdOn: new Date(),
       dueDate: taskData.dueDate,
-      userId: user.id
+      userId: user.id,
+      image: taskData.image // Preserve existing image URL if provided
     };
     formData.append('taskData', JSON.stringify(taskPayload));
 
     // Add image if exists
     if (imageFile) {
       formData.append('image', imageFile);
+      console.log('Image file added to form data');
+    } else if (taskData.image) {
+      console.log('Using existing image URL');
     }
 
     const response = await axios.post(`${API_BASE_URL}/tasks`, formData, {

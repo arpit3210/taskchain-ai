@@ -116,31 +116,68 @@ export function AddTaskModal({
         userId: user.id
       };
 
-      // Use local addTask method from useTasks hook
-      const newTask = await addTask(taskToCreate, imageFile);
-      
-      // Call onAddTask prop if provided
-      if (onAddTask) {
-        onAddTask(newTask);
+      try {
+        // Use local addTask method from useTasks hook
+        const newTask = await addTask(taskToCreate, imageFile);
+        
+        // Call onAddTask prop if provided
+        if (onAddTask) {
+          onAddTask(newTask);
+        }
+
+        // Reset form
+        reset();
+        setImageFile(null);
+        setImagePreview(null);
+        onOpenChange(false);
+
+        // Show success toast
+        toast({
+          title: "Success",
+          description: "Task created successfully!",
+          variant: "default"
+        });
+      } catch (error: any) {
+        // Detailed error handling
+        if (error.response) {
+          switch (error.response.status) {
+            case 409:
+              toast({
+                title: "Duplicate Task",
+                description: error.response.data.suggestion || "A similar task already exists.",
+                variant: "default"
+              });
+              break;
+            case 400:
+              toast({
+                title: "Invalid Task",
+                description: error.response.data.message || "Invalid task data.",
+                variant: "destructive"
+              });
+              break;
+            default:
+              toast({
+                title: "Error",
+                description: error.response.data.message || "Failed to add task. Please try again.",
+                variant: "destructive"
+              });
+          }
+        } else {
+          // Network error or other unexpected errors
+          toast({
+            title: "Network Error",
+            description: "Unable to connect to the server. Please check your internet connection.",
+            variant: "destructive"
+          });
+        }
+        
+        console.error('Task creation error:', error);
       }
-
-      // Reset form
-      reset();
-      setImageFile(null);
-      setImagePreview(null);
-      onOpenChange(false);
-
-      // Show success toast
+    } catch (generalError) {
+      console.error('Unexpected error:', generalError);
       toast({
-        title: "Success",
-        description: "Task created successfully!",
-        variant: "default"
-      });
-    } catch (error) {
-      console.error('Task creation error:', error);
-      toast({
-        title: "Error",
-        description: "Failed to add task. Please try again.",
+        title: "Unexpected Error",
+        description: "An unexpected error occurred. Please try again later.",
         variant: "destructive"
       });
     }

@@ -47,11 +47,36 @@ export function useTasks(): {
     setError(null);
     try {
       const newTask: ITask = await createTask(user, taskData, imageFile);
-      setRawTasks(prevTasks => [...prevTasks, newTask]);
+      
+      // Prevent duplicate tasks in local state
+      setRawTasks(prevTasks => {
+        // More sophisticated duplicate check
+        const isDuplicate = prevTasks.some(task => 
+          task.title === newTask.title && 
+          task.description === newTask.description &&
+          task.userId === newTask.userId &&
+          task.status === newTask.status
+        );
+
+        return isDuplicate ? prevTasks : [...prevTasks, newTask];
+      });
+
       return newTask;
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to add task'));
-      throw err;
+    } catch (err: any) {
+      // Distinguish between different types of errors
+      if (err.response && err.response.status === 409) {
+        // Duplicate task error
+        const errorMessage = err.response.data.suggestion || 'Similar task already exists';
+        setError(new Error(errorMessage));
+        throw err; // Rethrow to be handled by caller
+      } else {
+        // Other errors
+        const errorMessage = err instanceof Error 
+          ? err.message 
+          : 'Failed to add task';
+        setError(new Error(errorMessage));
+        throw err;
+      }
     } finally {
       setIsLoading(false);
     }

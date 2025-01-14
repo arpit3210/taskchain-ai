@@ -135,6 +135,26 @@ const createTaskHandler = async (req: Request, res: Response): Promise<void> => 
       });
     }
 
+    // Enhanced Duplicate Prevention with more precise matching
+    const similarTask = await Task.findOne({
+      title: taskData.title,
+      userId: taskData.userId,
+      // Only check for exact matches, not partial
+      description: taskData.description,
+      status: taskData.status,
+      priority: taskData.priority
+    });
+
+    if (similarTask) {
+      console.warn('Exact duplicate task detected:', similarTask);
+      res.status(409).json({ 
+        message: 'An identical task already exists',
+        suggestion: 'This task is an exact duplicate of an existing task.',
+        existingTask: similarTask 
+      });
+      return;
+    }
+
     try {
       const newTask = new Task(taskData);
       await newTask.save();
