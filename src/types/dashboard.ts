@@ -10,8 +10,11 @@ export interface User {
     description: string;
     priority: 'Low' | 'Moderate' | 'High';
     status: 'Not Started' | 'In Progress' | 'Completed';
-    createdOn: string;
+    createdOn: Date;
+    dueDate?: Date;
     image?: string;
+    imagePublicId?: string;
+    userId: string;
   }
   
   export interface TaskStatus {
@@ -19,5 +22,3 @@ export interface User {
     inProgress: number;
     notStarted: number;
   }
-  
-  

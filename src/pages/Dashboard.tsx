@@ -1,113 +1,96 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { SlidingSidebar } from "@/components/sliding-sidebar";
 import { Header } from "@/DashboardComponents/header";
 import { TaskCard } from "@/DashboardComponents/task-card";
 import { TaskStatus } from "@/DashboardComponents/task-status";
-import { User, Task, TaskStatus as TaskStatusType } from "@/types/dashboard";
+import { Task, TaskStatus as TaskStatusType } from "@/types/dashboard";
 import { Link } from 'react-router-dom';
 import { AddTaskModal } from '@/components/AddTaskModal';
-
+import { useTasks } from '@/hooks/useTasks';
+import { deleteTask, updateTask } from '@/lib/api';
+import { useUser } from '@clerk/clerk-react';
+import { toast } from 'sonner';
+import { ITask } from '@/models/Task';
 
 export default function Dashboard() {
-  const [user] = useState<User>({
-    name: 'Sundar Gurung',
-    email: 'sundar.gurung350@gmail.com',
-    avatar: 'https://v0.dev/placeholder.svg'
-  })
+  const { user } = useUser();
+  const { 
+    tasks: rawTasks, 
+    isLoading, 
+    error, 
+    loadTasks, 
+    addTask 
+  } = useTasks();
 
-  const [tasks] = useState<Task[]>([
-    {
-      id: '1',
-      title: "Implement Web3 login using MetaMask",
-      description: "Research and implement a way to use MetaMask to login to the web3 application.",
-      priority: 'High',
-      status: 'Not Started',
-      createdOn: '20/06/2023',
-      image: 'https://v0.dev/placeholder.svg'
-    },
-    {
-      id: '2',
-      title: "Develop NFT minting feature",
-      description: "Research and develop a feature to mint NFTs on the Polygon blockchain.",
-      priority: 'High',
-      status: 'In Progress',
-      createdOn: '20/06/2023',
-      image: 'https://v0.dev/placeholder.svg'
-    },
-    {
-      id: '3',
-      title: "Create a Web3 wallet using ethers.js",
-      description: "Research and develop a web3 wallet using ethers.js to interact with the Ethereum blockchain.",
-      priority: 'Moderate',
-      status: 'Not Started',
-      createdOn: '20/06/2023',
-      image: 'https://v0.dev/placeholder.svg'
-    },
-    {
-      id: '4',
-      title: "Fix Web3.js compatibility issue with Polygon",
-      description: "Research and fix a compatibility issue between Web3.js and the Polygon blockchain.",
-      priority: 'Low',
-      status: 'Completed',
-      createdOn: '20/06/2023',
-      image: 'https://v0.dev/placeholder.svg'
-    },
-    {
-      id: '5',
-      title: "Implement Web3 storage using IPFS",
-      description: "Research and implement a way to store data on the InterPlanetary File System (IPFS) using Web3.",
-      priority: 'Moderate',
-      status: 'Not Started',
-      createdOn: '20/06/2023',
-      image: 'https://v0.dev/placeholder.svg'
-    },
-    {
-      id: '6',
-      title: "Research and implement Web3 authentication using uPort",
-      description: "Research and implement a way to use uPort to authenticate users on the web3 application.",
-      priority: 'Low',
-      status: 'Not Started',
-      createdOn: '20/06/2023',
-      image: 'https://v0.dev/placeholder.svg'
-    },
-    {
-      id: '7',
-      title: "Develop a Web3 dapp using React and ethers.js",
-      description: "Research and develop a web3 application using React and ethers.js to interact with the Ethereum blockchain.",
-      priority: 'Moderate',
-      status: 'Not Started',
-      createdOn: '20/06/2023',
-      image: 'https://v0.dev/placeholder.svg'
-    },
-    {
-      id: '8',
-      title: "Research and implement Web3 analytics using Google Analytics",
-      description: "Research and implement a way to use Google Analytics to track analytics on the web3 application.",
-      priority: 'Low',
-      status: 'Not Started',
-      createdOn: '20/06/2023',
-      image: 'https://v0.dev/placeholder.svg'
-    },
-    // Add more tasks...
-  ])
-
-  const [taskStatus] = useState<TaskStatusType>({
-    completed: 84,
-    inProgress: 46,
-    notStarted: 13
-  })
-
+  // Convert ITask to Task
+  const tasks: Task[] = rawTasks ? rawTasks.map(task => ({
+    id: task?._id?.toString() || '',
+    title: task.title || 'Untitled Task',
+    description: task.description || '',
+    priority: task.priority || 'Low',
+    status: task.status || 'Not Started',
+    createdOn: task.createdOn ? 
+      (typeof task.createdOn === 'string' ? new Date(task.createdOn) : task.createdOn) 
+      : new Date(),
+    dueDate: task.dueDate ? 
+      (typeof task.dueDate === 'string' ? new Date(task.dueDate) : task.dueDate) 
+      : undefined,
+    image: task.image,
+    imagePublicId: undefined,
+    userId: task.userId || ''
+  })) : [];
 
   const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
 
-  const handleAddTask = (taskData: any) => {
-    // Implement task addition logic
-    // This could involve calling an API, updating state, etc.
-    console.log('New Task Added:', taskData);
+  useEffect(() => {
+    loadTasks();
+  }, [user]);
 
-    // Optionally close the modal after adding task
-    setIsAddTaskModalOpen(false);
+  const handleAddTask = async (taskData: Partial<Task>) => {
+    try {
+      await addTask(taskData);
+      setIsAddTaskModalOpen(false);
+      toast.success('Task added successfully');
+    } catch (err) {
+      toast.error('Failed to add task');
+    }
   };
+
+  const handleEditTask = async (updatedTask: Task) => {
+    try {
+      if (!user) return;
+      await updateTask(user, updatedTask);
+      await loadTasks();
+      setEditingTask(null);
+      toast.success('Task updated successfully');
+    } catch (err) {
+      toast.error('Failed to update task');
+    }
+  };
+
+  const handleDeleteTask = async (taskId: string) => {
+    try {
+      if (!user) return;
+      await deleteTask(user, taskId);
+      await loadTasks();
+      toast.success('Task deleted successfully');
+    } catch (err) {
+      toast.error('Failed to delete task');
+    }
+  };
+
+  const calculateTaskStatus = () => {
+    const taskStatus: TaskStatusType = {
+      completed: tasks.filter(task => task.status === 'Completed').length,
+      inProgress: tasks.filter(task => task.status === 'In Progress').length,
+      notStarted: tasks.filter(task => task.status === 'Not Started').length
+    };
+    return taskStatus;
+  };
+
+  if (isLoading) return <div>Loading tasks...</div>;
+  if (error) return <div>Error loading tasks: {error.message}</div>;
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -124,14 +107,13 @@ export default function Dashboard() {
             teamMembers={[
               { id: '1', avatar: 'https://v0.dev/placeholder.svg' },
               { id: '2', avatar: 'https://v0.dev/placeholder.svg' },
-              // Add more team members...
             ]}
           />
 
           <div className="mt-6">
             <div className="mb-8">
               <h1 className="text-2xl font-semibold mb-2">
-                Welcome back, Sundar
+                Welcome back, {user?.firstName || 'User'}
               </h1>
             </div>
 
@@ -139,27 +121,48 @@ export default function Dashboard() {
               <div className="lg:col-span-2 space-y-6">
                 <div className="flex justify-between items-center">
                   <h2 className="text-lg font-semibold">To-Do</h2>
-                  {/* Add Task Button */}
-                  <button onClick={() => setIsAddTaskModalOpen(true)} className="text-[#FF7B7B]">+ Add task</button>
-
+                  <button 
+                    onClick={() => {
+                      setEditingTask(null);
+                      setIsAddTaskModalOpen(true);
+                    }} 
+                    className="text-[#FF7B7B]"
+                  >
+                    + Add task
+                  </button>
                 </div>
                 <div className="space-y-4">
-                  {tasks.filter(task => task.status === 'Not Started').map(task => (
-                    <TaskCard key={task.id} task={task} />
+
+     {tasks.filter(task => task.status === 'Not Started').map(task => (
+                    <TaskCard 
+                      key={task.id || crypto.randomUUID()} 
+                      task={task} 
+                      onEdit={() => {
+                        setEditingTask(task);
+                        setIsAddTaskModalOpen(true);
+                      }}
+                      onDelete={() => handleDeleteTask(task.id)}
+                    />
                   ))}
                 </div>
               </div>
 
               <div className="space-y-6">
-                <TaskStatus status={taskStatus} />
-
-
+                <TaskStatus status={calculateTaskStatus()} />
 
                 <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
                   <h2 className="text-lg font-semibold mb-4">In Progress Task</h2>
                   <div className="space-y-4">
                     {tasks.filter(task => task.status === 'In Progress').map(task => (
-                      <TaskCard key={task.id} task={task} />
+                      <TaskCard 
+                        key={task.id || crypto.randomUUID()} 
+                        task={task} 
+                        onEdit={() => {
+                          setEditingTask(task);
+                          setIsAddTaskModalOpen(true);
+                        }}
+                        onDelete={() => handleDeleteTask(task.id)}
+                      />
                     ))}
                   </div>
 
@@ -168,34 +171,39 @@ export default function Dashboard() {
                   </Link>
                 </div>
 
-
                 <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
                   <h2 className="text-lg font-semibold mb-4">Completed Task</h2>
                   <div className="space-y-4">
                     {tasks.filter(task => task.status === 'Completed').map(task => (
-                      <TaskCard key={task.id} task={task} />
+                      <TaskCard 
+                        key={task.id || crypto.randomUUID()} 
+                        task={task} 
+                        onEdit={() => {
+                          setEditingTask(task);
+                          setIsAddTaskModalOpen(true);
+                        }}
+                        onDelete={() => handleDeleteTask(task.id)}
+                      />
                     ))}
                   </div>
 
                   <Link to="/completed">
                     <p className='text-[#8a8a8a] text-sm text-center cursor-pointer py-4'>Open More Tasks</p>
                   </Link>
-
                 </div>
-
               </div>
             </div>
           </div>
         </div>
 
-
-        {/* Add Task Modal */}
+        {/* Add/Edit Task Modal */}
         <AddTaskModal
           isOpen={isAddTaskModalOpen}
           onOpenChange={setIsAddTaskModalOpen}
           onAddTask={handleAddTask}
+          initialTask={editingTask}
+          onUpdateTask={handleEditTask}
         />
-
       </main>
     </div>
   )
