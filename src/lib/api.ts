@@ -55,50 +55,101 @@ export async function fetchTasks(user: UserResource | null): Promise<ITask[]> {
   }
 }
 
+// Enhanced logging utility
+function logApiCall(method: string, url: string, data?: any, config?: any) {
+  console.group(`🔍 API Call: ${method.toUpperCase()} ${url}`);
+  console.log('Timestamp:', new Date().toISOString());
+  if (data) console.log('Payload:', JSON.stringify(data, null, 2));
+  if (config) console.log('Config:', JSON.stringify(config, null, 2));
+  console.groupEnd();
+}
+
 export async function createTask(user: UserResource | null, taskData: Partial<Task>, imageFile?: File): Promise<ITask> {
   if (!user) {
+    console.error('❌ Task Creation Failed: No authenticated user');
     throw new Error('User not authenticated');
   }
 
-  // Validate required fields
-  if (!taskData.title) {
-    throw new Error('Task title is required');
+  // Comprehensive task payload validation
+  const taskPayload = {
+    ...taskData,
+    userId: user.id,
+    image: taskData.image
+  };
+
+  // Validate critical fields
+  if (!taskPayload.title) {
+    console.warn('⚠️ Task Creation Warning: No title provided');
+  }
+
+  const formData = new FormData();
+  formData.append('taskData', JSON.stringify(taskPayload));
+
+  // Detailed image logging
+  if (imageFile) {
+    console.log('🖼️ Image Details:', {
+      name: imageFile.name,
+      size: imageFile.size,
+      type: imageFile.type
+    });
+    formData.append('image', imageFile);
+  } else if (taskData.image) {
+    console.log('🔗 Using existing image URL:', taskData.image);
   }
 
   try {
-    // Create FormData for multipart upload
-    const formData = new FormData();
-    
-    // Prepare task payload
-    const taskPayload = {
-      title: taskData.title,
-      description: taskData.description || '',
-      priority: taskData.priority || 'Moderate',
-      status: taskData.status || 'Not Started',
-      createdOn: new Date(),
-      dueDate: taskData.dueDate,
-      userId: user.id,
-      image: taskData.image // Preserve existing image URL if provided
-    };
-    formData.append('taskData', JSON.stringify(taskPayload));
+    // Log API call details before sending
+    logApiCall('POST', '/tasks', taskPayload);
 
-    // Add image if exists
-    if (imageFile) {
-      formData.append('image', imageFile);
-      console.log('Image file added to form data');
-    } else if (taskData.image) {
-      console.log('Using existing image URL');
-    }
-
-    const response = await axios.post(`${API_BASE_URL}/tasks`, formData, {
+    const response = await api.post('/tasks', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
+      },
+      // Add request timeout and additional tracking
+      timeout: 10000,
+      onUploadProgress: (progressEvent) => {
+        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        console.log(`📤 Upload Progress: ${percentCompleted}%`);
       }
     });
-    
+
+    console.log('✅ Task Creation Successful:', {
+      taskId: response.data._id,
+      title: response.data.title
+    });
+
     return response.data;
-  } catch (error) {
-    console.error('Error creating task:', error);
+  } catch (error: any) {
+    // Comprehensive error logging
+    console.group('❌ Task Creation Error');
+    console.error('Error Type:', error.constructor.name);
+
+    if (error.response) {
+      // Server responded with an error
+      console.error('Status:', error.response.status);
+      console.error('Data:', error.response.data);
+
+      if (error.response.status === 409) {
+        const errorDetails = error.response.data;
+        console.warn('🚨 Duplicate Task Detected:', errorDetails);
+
+        const duplicateError = new Error(
+          errorDetails.suggestion || 'A similar task already exists'
+        );
+        (duplicateError as any).details = errorDetails;
+
+        console.groupEnd();
+        throw duplicateError;
+      }
+    } else if (error.request) {
+      // Request was made but no response received
+      console.error('No response received:', error.request);
+    } else {
+      // Something happened in setting up the request
+      console.error('Error setting up request:', error.message);
+    }
+
+    console.groupEnd();
     throw error;
   }
 }
@@ -131,8 +182,12 @@ export async function deleteTask(user: UserResource | null, taskId: string): Pro
     throw new Error('User not authenticated');
   }
 
+  console.log('Deleting task:', { taskId, userId: user.id });
+
   try {
-    await api.delete(`/tasks/${taskId}?userId=${user.id}`);
+    await api.delete(`/tasks/${taskId}`, {
+      params: { userId: user.id }
+    });
   } catch (error) {
     console.error('Error deleting task:', error);
     throw error;

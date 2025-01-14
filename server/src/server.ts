@@ -9,7 +9,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import multer from 'multer';
 import { v2 as cloudinary } from 'cloudinary';
-import Task from './models/Task';
+import Task, { ITask } from './models/Task';
 
 dotenv.config();
 
@@ -83,71 +83,44 @@ const uploadToCloudinary = (file: Express.Multer.File): Promise<any> => {
 };
 
 // Create Task with Image Upload
-const createTaskHandler = async (req: Request, res: Response): Promise<void> => {
+async function createTaskHandler(req: Request, res: Response): Promise<void> {
   try {
-    console.log('Received task creation request');
-    console.log('Raw request body:', req.body);
-    console.log('Request file:', req.file);
+    console.group('Task Creation Process');
+    console.log('Request Body:', req.body);
+    console.log('Request File:', req.file);
 
     // Parse task data from the request
-    let taskData: any;
-    try {
-      taskData = JSON.parse(req.body.taskData);
-    } catch (parseError: unknown) {
-      const errorMessage = parseError instanceof Error 
-        ? parseError.message 
-        : 'Invalid task data format';
-      
-      console.error('Error parsing task data:', errorMessage);
-      res.status(400).json({ 
-        message: 'Invalid task data format', 
-        error: errorMessage 
-      });
-    }
-
+    const taskData: Partial<ITask> = JSON.parse(req.body.taskData);
+    
     // Handle file upload if exists
     let cloudinaryResult: any;
     if (req.file) {
       try {
         cloudinaryResult = await uploadToCloudinary(req.file);
-        console.log('Cloudinary upload result:', cloudinaryResult);
-        
-        // Add Cloudinary image details to task data
         taskData.image = cloudinaryResult.secure_url;
         taskData.imagePublicId = cloudinaryResult.public_id;
-      } catch (uploadError: unknown) {
-        const errorMessage = uploadError instanceof Error 
-          ? uploadError.message 
-          : 'Cloudinary upload failed';
-        
-        console.error('Cloudinary upload error:', errorMessage);
-        // Optionally, you can choose to continue without the image
-        // or return an error
+      } catch (uploadError) {
+        console.error('Cloudinary Upload Error:', uploadError);
+        // Continue with task creation even if image upload fails
       }
-    } else {
-      console.log('No image file in the request');
     }
 
-    // Ensure required fields are present
-    if (!taskData.title) {
-      res.status(400).json({ 
-        message: 'Task title is required' 
-      });
-    }
-
-    // Enhanced Duplicate Prevention with more precise matching
+    // More precise duplicate task detection
     const similarTask = await Task.findOne({
-      title: taskData.title,
       userId: taskData.userId,
-      // Only check for exact matches, not partial
+      title: { $regex: new RegExp(`^${taskData.title}$`, 'i') },
       description: taskData.description,
-      status: taskData.status,
-      priority: taskData.priority
+      priority: taskData.priority,
+      status: taskData.status
     });
 
+    console.log('Similar Task Found:', similarTask ? 'Yes' : 'No');
+
     if (similarTask) {
-      console.warn('Exact duplicate task detected:', similarTask);
-      res.status(409).json({ 
+      console.warn('Potential duplicate task detected');
+      console.groupEnd();
+      
+      res.status(409).json({
         message: 'An identical task already exists',
         suggestion: 'This task is an exact duplicate of an existing task.',
         existingTask: similarTask 
@@ -156,10 +129,13 @@ const createTaskHandler = async (req: Request, res: Response): Promise<void> => 
     }
 
     try {
+      // Create and save the new task
       const newTask = new Task(taskData);
       await newTask.save();
       
       console.log('Task created successfully:', newTask);
+      console.groupEnd();
+      
       res.status(201).json(newTask);
     } catch (saveError: unknown) {
       const errorMessage = saveError instanceof Error 
@@ -167,26 +143,32 @@ const createTaskHandler = async (req: Request, res: Response): Promise<void> => 
         : 'Unknown save error';
       
       console.error('Error saving task:', errorMessage);
+      console.groupEnd();
+      
       res.status(500).json({ 
         message: 'Error saving task', 
         error: errorMessage 
       });
     }
-  } catch (error: unknown) {
+  } catch (error) {
     const errorMessage = error instanceof Error 
       ? error.message 
       : 'Unexpected error';
     
     console.error('Unexpected error in task creation:', errorMessage);
+    console.groupEnd();
+    
     res.status(500).json({ 
       message: 'Unexpected error creating task', 
       error: errorMessage 
     });
   }
-};
+}
 
 // Register the handler with proper typing
-app.post('/api/tasks', upload.single('image'), createTaskHandler);
+app.post('/api/tasks', upload.single('image'), async (req: Request, res: Response) => {
+  await createTaskHandler(req, res);
+});
 
 // Health Check Endpoint
 app.get('/api/health', (req: Request, res: Response) => {
@@ -209,6 +191,34 @@ app.get('/api/tasks', async (req: Request, res: Response) => {
     console.error('Error fetching tasks:', error);
     res.status(500).json({ 
       message: 'Error fetching tasks', 
+      error: error instanceof Error ? error.message : 'Unknown error' 
+    });
+  }
+});
+
+// Delete Task
+app.delete('/api/tasks/:taskId', async (req: Request, res: Response) => {
+  try {
+    const { taskId } = req.params;
+    const { userId } = req.query;
+
+    console.log('Delete task request:', { taskId, userId });
+
+    if (!userId) {
+      return res.status(400).json({ message: 'User ID is required' });
+    }
+
+    const deletedTask = await Task.findOneAndDelete({ _id: taskId, userId });
+
+    if (!deletedTask) {
+      return res.status(404).json({ message: 'Task not found' });
+    }
+
+    return res.status(200).json({ message: 'Task deleted successfully', task: deletedTask });
+  } catch (error) {
+    console.error('Error deleting task:', error);
+    return res.status(500).json({ 
+      message: 'Error deleting task', 
       error: error instanceof Error ? error.message : 'Unknown error' 
     });
   }

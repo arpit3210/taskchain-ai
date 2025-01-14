@@ -53,15 +53,16 @@ interface AddTaskModalProps {
   onAddTask?: (taskData: Partial<ITask>) => void;
 }
 
-export function AddTaskModal({ 
+export const AddTaskModal = ({ 
   isOpen, 
   onOpenChange,
   onAddTask
-}: AddTaskModalProps) {
+}: AddTaskModalProps) => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const { user } = useUser();
   const { addTask, reloadTasks } = useTasks();
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { 
     control, 
@@ -93,19 +94,26 @@ export function AddTaskModal({
   };
 
   const onSubmit = async (data: TaskFormData) => {
+    // Prevent multiple submissions
+    if (isSubmitting) {
+      console.warn('Task submission already in progress');
+      return;
+    }
+
     if (!user) {
       toast({
-        title: "Authentication Required",
-        description: "Please log in to create a task",
+        title: "Error",
+        description: "User not authenticated",
         variant: "destructive"
       });
       return;
     }
 
+    // Lock submission
+    setIsSubmitting(true);
+
     try {
-      console.log('Submitting task with image:', imageFile);
-      
-      // Prepare task data
+      // Prepare task data without _id or version
       const taskToCreate: Partial<ITask> = {
         title: data.title,
         description: data.description,
@@ -116,70 +124,36 @@ export function AddTaskModal({
         userId: user.id
       };
 
-      try {
-        // Use local addTask method from useTasks hook
-        const newTask = await addTask(taskToCreate, imageFile);
-        
-        // Call onAddTask prop if provided
-        if (onAddTask) {
-          onAddTask(newTask);
-        }
+      // Single task creation method
+      const newTask = await addTask(taskToCreate, imageFile);
+      
+      // Optional callback if needed
+      onAddTask?.(newTask);
 
-        // Reset form
-        reset();
-        setImageFile(null);
-        setImagePreview(null);
-        onOpenChange(false);
+      // Reset form
+      reset();
+      setImageFile(null);
+      setImagePreview(null);
+      onOpenChange(false);
 
-        // Show success toast
-        toast({
-          title: "Success",
-          description: "Task created successfully!",
-          variant: "default"
-        });
-      } catch (error: any) {
-        // Detailed error handling
-        if (error.response) {
-          switch (error.response.status) {
-            case 409:
-              toast({
-                title: "Duplicate Task",
-                description: error.response.data.suggestion || "A similar task already exists.",
-                variant: "default"
-              });
-              break;
-            case 400:
-              toast({
-                title: "Invalid Task",
-                description: error.response.data.message || "Invalid task data.",
-                variant: "destructive"
-              });
-              break;
-            default:
-              toast({
-                title: "Error",
-                description: error.response.data.message || "Failed to add task. Please try again.",
-                variant: "destructive"
-              });
-          }
-        } else {
-          // Network error or other unexpected errors
-          toast({
-            title: "Network Error",
-            description: "Unable to connect to the server. Please check your internet connection.",
-            variant: "destructive"
-          });
-        }
-        
-        console.error('Task creation error:', error);
-      }
-    } catch (generalError) {
-      console.error('Unexpected error:', generalError);
       toast({
-        title: "Unexpected Error",
-        description: "An unexpected error occurred. Please try again later.",
+        title: "Success",
+        description: "Task created successfully!",
+        variant: "default"
+      });
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.suggestion || 
+                           error.message || 
+                           "Failed to create task";
+      
+      toast({
+        title: "Error",
+        description: errorMessage,
         variant: "destructive"
       });
+    } finally {
+      // Always unlock submission
+      setIsSubmitting(false);
     }
   };
 

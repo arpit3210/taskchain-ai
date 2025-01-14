@@ -24,7 +24,7 @@ export default function Dashboard() {
 
   // Convert ITask to Task
   const tasks: Task[] = rawTasks ? rawTasks.map(task => ({
-    id: task?._id?.toString() || '',
+    id: task?.id?.toString() || '',
     title: task.title || 'Untitled Task',
     description: task.description || '',
     priority: task.priority || 'Low',

@@ -45,12 +45,12 @@ export function useTasks(): {
 
     setIsLoading(true);
     setError(null);
+
     try {
       const newTask: ITask = await createTask(user, taskData, imageFile);
       
-      // Prevent duplicate tasks in local state
+      // More robust duplicate prevention
       setRawTasks(prevTasks => {
-        // More sophisticated duplicate check
         const isDuplicate = prevTasks.some(task => 
           task.title === newTask.title && 
           task.description === newTask.description &&
@@ -58,25 +58,19 @@ export function useTasks(): {
           task.status === newTask.status
         );
 
+        // If not a duplicate, add the task
         return isDuplicate ? prevTasks : [...prevTasks, newTask];
       });
 
       return newTask;
     } catch (err: any) {
-      // Distinguish between different types of errors
-      if (err.response && err.response.status === 409) {
-        // Duplicate task error
-        const errorMessage = err.response.data.suggestion || 'Similar task already exists';
-        setError(new Error(errorMessage));
-        throw err; // Rethrow to be handled by caller
-      } else {
-        // Other errors
-        const errorMessage = err instanceof Error 
-          ? err.message 
-          : 'Failed to add task';
-        setError(new Error(errorMessage));
-        throw err;
-      }
+      // Centralized error handling
+      const errorMessage = err.response?.data?.suggestion || 
+                           err.message || 
+                           'Failed to add task';
+      
+      setError(new Error(errorMessage));
+      throw err;
     } finally {
       setIsLoading(false);
     }
