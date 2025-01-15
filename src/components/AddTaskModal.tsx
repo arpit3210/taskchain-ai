@@ -134,6 +134,7 @@ export const AddTaskModal = ({
       reset();
       setImageFile(null);
       setImagePreview(null);
+
       onOpenChange(false);
 
       toast({
@@ -142,7 +143,7 @@ export const AddTaskModal = ({
         variant: "default"
       });
     } catch (error: any) {
-      const errorMessage = error.response?.data?.suggestion || 
+      const errorMessage = error.response?.data?.message || 
                            error.message || 
                            "Failed to create task";
       
@@ -151,6 +152,9 @@ export const AddTaskModal = ({
         description: errorMessage,
         variant: "destructive"
       });
+
+      // Ensure the modal closes and user remains on the dashboard
+      onOpenChange(false);
     } finally {
       // Always unlock submission
       setIsSubmitting(false);

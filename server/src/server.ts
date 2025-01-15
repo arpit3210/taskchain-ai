@@ -121,9 +121,7 @@ async function createTaskHandler(req: Request, res: Response): Promise<void> {
       console.groupEnd();
       
       res.status(409).json({
-        message: 'An identical task already exists',
-        suggestion: 'This task is an exact duplicate of an existing task.',
-        existingTask: similarTask 
+        message: 'A similar task already exists'
       });
       return;
     }
@@ -141,7 +139,6 @@ async function createTaskHandler(req: Request, res: Response): Promise<void> {
       const errorMessage = saveError instanceof Error 
         ? saveError.message 
         : 'Unknown save error';
-      
       console.error('Error saving task:', errorMessage);
       console.groupEnd();
       
