@@ -1,5 +1,7 @@
 import { BellIcon, CalendarIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import RealTimeClock from './DateTime';
+
 
 interface HeaderProps {
   date: string;
@@ -16,7 +18,6 @@ export function Header({ date, teamMembers }: HeaderProps) {
           className="w-full px-4 py-2 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#FF7B7B]"
         />
       </div>
-
       <div className="flex items-center space-x-6">
         <button className="p-2 hover:bg-gray-100 rounded-full">
           <BellIcon className="w-6 h-6 text-gray-500" />
@@ -38,8 +39,7 @@ export function Header({ date, teamMembers }: HeaderProps) {
           </Button>
         </div>
         <div className="text-right">
-          <div className="font-medium">Tuesday</div>
-          <div className="text-sm text-gray-500">{date}</div>
+        <RealTimeClock />
         </div>
       </div>
     </div>
