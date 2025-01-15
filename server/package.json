@@ -5,7 +5,9 @@
   "scripts": {
     "start": "node dist/server.js",
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "prebuild": "rm -rf dist",
     "build": "tsc",
+    "build:verbose": "tsc --listFiles --traceResolution",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
