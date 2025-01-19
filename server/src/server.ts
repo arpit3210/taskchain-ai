@@ -130,10 +130,10 @@ async function createTaskHandler(req: Request, res: Response): Promise<void> {
       console.warn('Potential duplicate task detected');
       console.groupEnd();
 
-      res.status(409).json({
-        message: 'A similar task already exists'
-      });
-      return;
+      // res.status(409).json({
+      //   message: 'A similar task already exists'
+      // });
+      // return;
     }
 
     try {
@@ -152,10 +152,10 @@ async function createTaskHandler(req: Request, res: Response): Promise<void> {
       console.error('Error saving task:', errorMessage);
       console.groupEnd();
 
-      res.status(500).json({
-        message: 'Error saving task',
-        error: errorMessage
-      });
+      // res.status(500).json({
+      //   message: 'Error saving task',
+      //   error: errorMessage
+      // });
     }
   } catch (error) {
     const errorMessage = error instanceof Error
@@ -165,10 +165,10 @@ async function createTaskHandler(req: Request, res: Response): Promise<void> {
     console.error('Unexpected error in task creation:', errorMessage);
     console.groupEnd();
 
-    res.status(500).json({
-      message: 'Unexpected error creating task',
-      error: errorMessage
-    });
+    // res.status(500).json({
+    //   message: 'Unexpected error creating task',
+    //   error: errorMessage
+    // });
   }
 }
 

@@ -50,17 +50,17 @@ export function useTasks(): {
       const newTask: ITask = await createTask(user, taskData, imageFile);
       
       // More robust duplicate prevention
-      setRawTasks(prevTasks => {
-        const isDuplicate = prevTasks.some(task => 
-          task.title === newTask.title && 
-          task.description === newTask.description &&
-          task.userId === newTask.userId &&
-          task.status === newTask.status
-        );
+      // setRawTasks(prevTasks => {
+      //   const isDuplicate = prevTasks.some(task => 
+      //     task.title === newTask.title && 
+      //     task.description === newTask.description &&
+      //     task.userId === newTask.userId &&
+      //     task.status === newTask.status
+      //   );
 
-        // If not a duplicate, add the task
-        return isDuplicate ? prevTasks : [...prevTasks, newTask];
-      });
+      //   // If not a duplicate, add the task
+      //   return isDuplicate ? prevTasks : [...prevTasks, newTask];
+      // });
 
       return newTask;
     } catch (err: any) {

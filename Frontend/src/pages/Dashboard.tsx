@@ -1,26 +1,26 @@
 import { useState, useEffect } from 'react'
-import { SlidingSidebar } from "@/components/sliding-sidebar";
-import { Header } from "@/DashboardComponents/header";
-import { TaskCard } from "@/DashboardComponents/task-card";
-import { TaskStatus } from "@/DashboardComponents/task-status";
-import { Task, TaskStatus as TaskStatusType } from "@/types/dashboard";
-import { Link } from 'react-router-dom';
-import { AddTaskModal } from '@/components/AddTaskModal';
-import { useTasks } from '@/hooks/useTasks';
-import { deleteTask, updateTask } from '@/lib/api';
-import { useUser } from '@clerk/clerk-react';
-import { toast } from 'sonner';
-import { ITask } from '@/models/Task';
+import { SlidingSidebar } from "@/components/sliding-sidebar"
+import { Header } from "@/DashboardComponents/header"
+import { TaskCard } from "@/DashboardComponents/task-card"
+import { TaskStatus } from "@/DashboardComponents/task-status"
+import { Task, TaskStatus as TaskStatusType } from "@/types/dashboard"
+import { Link } from 'react-router-dom'
+import { AddTaskModal } from '@/components/AddTaskModal'
+import { useTasks } from '@/hooks/useTasks'
+import { deleteTask, updateTask } from '@/lib/api'
+import { useUser } from '@clerk/clerk-react'
+import { toast } from 'sonner'
+import { ITask } from '@/models/Task'
 
 export default function Dashboard() {
-  const { user } = useUser();
-  const { 
-    tasks: rawTasks, 
-    isLoading, 
-    error, 
-    loadTasks, 
-    addTask 
-  } = useTasks();
+  const { user } = useUser()
+  const {
+    tasks: rawTasks,
+    isLoading,
+    error,
+    loadTasks,
+    addTask
+  } = useTasks()
 
   // Convert ITask to Task
   const tasks: Task[] = rawTasks ? rawTasks.map(task => ({
@@ -29,68 +29,83 @@ export default function Dashboard() {
     description: task.description || '',
     priority: task.priority || 'Low',
     status: task.status || 'Not Started',
-    createdOn: task.createdOn ? 
-      (typeof task.createdOn === 'string' ? new Date(task.createdOn) : task.createdOn) 
+    createdOn: task.createdOn ?
+      (typeof task.createdOn === 'string' ? new Date(task.createdOn) : task.createdOn)
       : new Date(),
-    dueDate: task.dueDate ? 
-      (typeof task.dueDate === 'string' ? new Date(task.dueDate) : task.dueDate) 
+    dueDate: task.dueDate ?
+      (typeof task.dueDate === 'string' ? new Date(task.dueDate) : task.dueDate)
       : undefined,
     image: task.image,
-    imagePublicId: undefined,
+    imagePublicId: task.imagePublicId,
     userId: task.userId || ''
-  })) : [];
+  })) : []
 
-  const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
-  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false)
+  const [taskToEdit, setTaskToEdit] = useState<Task | null>(null)
 
   useEffect(() => {
-    loadTasks();
-  }, [user]);
+    loadTasks()
+  }, [user, loadTasks])
 
   const handleAddTask = async (taskData: Partial<Task>) => {
     try {
-      await addTask(taskData);
-      setIsAddTaskModalOpen(false);
-      toast.success('Task added successfully');
+      await addTask(taskData)
+      setIsAddTaskModalOpen(false)
+      toast.success('Task added successfully')
     } catch (err) {
-      toast.error('Failed to add task');
+      toast.error('Failed to add task')
     }
-  };
+  }
 
-  const handleEditTask = async (updatedTask: Task) => {
+  const handleUpdateTask = async (updatedTask: ITask) => {
     try {
-      if (!user) return;
-      await updateTask(user, updatedTask);
+      if (!user) return
+      
+      // Convert ITask to Task for API update
+      const taskToUpdate: Task = {
+        id: updatedTask._id?.toString() || '',
+        title: updatedTask.title,
+        description: updatedTask.description || '',
+        priority: updatedTask.priority,
+        status: updatedTask.status,
+        createdOn: updatedTask.createdOn,
+        dueDate: updatedTask.dueDate,
+        image: updatedTask.image,
+        imagePublicId: undefined,
+        userId: updatedTask.userId
+      };
+
+      await updateTask(user, taskToUpdate);
       await loadTasks();
-      setEditingTask(null);
+      setTaskToEdit(null);
       toast.success('Task updated successfully');
     } catch (err) {
       toast.error('Failed to update task');
     }
-  };
+  }
 
   const handleDeleteTask = async (taskId: string) => {
     try {
-      if (!user) return;
-      await deleteTask(user, taskId);
-      await loadTasks();
-      toast.success('Task deleted successfully');
+      if (!user) return
+      await deleteTask(user, taskId)
+      await loadTasks()
+      toast.success('Task deleted successfully')
     } catch (err) {
-      toast.error('Failed to delete task');
+      toast.error('Failed to delete task')
     }
-  };
+  }
 
   const calculateTaskStatus = () => {
     const taskStatus: TaskStatusType = {
       completed: tasks.filter(task => task.status === 'Completed').length,
       inProgress: tasks.filter(task => task.status === 'In Progress').length,
       notStarted: tasks.filter(task => task.status === 'Not Started').length
-    };
-    return taskStatus;
-  };
+    }
+    return taskStatus
+  }
 
-  if (isLoading) return <div>Loading tasks...</div>;
-  if (error) return <div>Error loading tasks: {error.message}</div>;
+  if (isLoading) return <div>Loading tasks...</div>
+  if (error) return <div>Error loading tasks: {error.message}</div>
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -103,10 +118,10 @@ export default function Dashboard() {
         sm:p-6">
         <div className="flex-1">
           <Header
-            date="20/06/2023"
+            date={new Date().toLocaleDateString()}
             teamMembers={[
-              { id: '1', avatar: 'https://v0.dev/placeholder.svg' },
-              { id: '2', avatar: 'https://v0.dev/placeholder.svg' },
+              { id: '1', avatar: '/api/placeholder/32/32' },
+              { id: '2', avatar: '/api/placeholder/32/32' },
             ]}
           />
 
@@ -121,25 +136,24 @@ export default function Dashboard() {
               <div className="lg:col-span-2 space-y-6">
                 <div className="flex justify-between items-center">
                   <h2 className="text-lg font-semibold">To-Do</h2>
-                  <button 
+                  <button
                     onClick={() => {
-                      setEditingTask(null);
-                      setIsAddTaskModalOpen(true);
-                    }} 
+                      setTaskToEdit(null)
+                      setIsAddTaskModalOpen(true)
+                    }}
                     className="text-[#FF7B7B]"
                   >
                     + Add task
                   </button>
                 </div>
                 <div className="space-y-4">
-
-     {tasks.filter(task => task.status === 'Not Started').map(task => (
-                    <TaskCard 
-                      key={task.id || crypto.randomUUID()} 
-                      task={task} 
+                  {tasks.filter(task => task.status === 'Not Started').map(task => (
+                    <TaskCard
+                      key={task.id}
+                      task={task}
                       onEdit={() => {
-                        setEditingTask(task);
-                        setIsAddTaskModalOpen(true);
+                        setTaskToEdit(task)
+                        setIsAddTaskModalOpen(true)
                       }}
                       onDelete={() => handleDeleteTask(task.id)}
                     />
@@ -154,12 +168,12 @@ export default function Dashboard() {
                   <h2 className="text-lg font-semibold mb-4">In Progress Task</h2>
                   <div className="space-y-4">
                     {tasks.filter(task => task.status === 'In Progress').map(task => (
-                      <TaskCard 
-                        key={task.id || crypto.randomUUID()} 
-                        task={task} 
+                      <TaskCard
+                        key={task.id}
+                        task={task}
                         onEdit={() => {
-                          setEditingTask(task);
-                          setIsAddTaskModalOpen(true);
+                          setTaskToEdit(task)
+                          setIsAddTaskModalOpen(true)
                         }}
                         onDelete={() => handleDeleteTask(task.id)}
                       />
@@ -175,12 +189,12 @@ export default function Dashboard() {
                   <h2 className="text-lg font-semibold mb-4">Completed Task</h2>
                   <div className="space-y-4">
                     {tasks.filter(task => task.status === 'Completed').map(task => (
-                      <TaskCard 
-                        key={task.id || crypto.randomUUID()} 
-                        task={task} 
+                      <TaskCard
+                        key={task.id}
+                        task={task}
                         onEdit={() => {
-                          setEditingTask(task);
-                          setIsAddTaskModalOpen(true);
+                          setTaskToEdit(task)
+                          setIsAddTaskModalOpen(true)
                         }}
                         onDelete={() => handleDeleteTask(task.id)}
                       />
@@ -196,14 +210,14 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Add/Edit Task Modal */}
         <AddTaskModal
           isOpen={isAddTaskModalOpen}
           onOpenChange={setIsAddTaskModalOpen}
           onAddTask={handleAddTask}
-          initialTask={editingTask}
-          onUpdateTask={handleEditTask}
+          initialTask={taskToEdit}
+          onUpdateTask={handleUpdateTask}
         />
+
       </main>
     </div>
   )

@@ -121,36 +121,36 @@ export async function createTask(user: UserResource | null, taskData: Partial<Ta
     return response.data;
   } catch (error: any) {
     // Comprehensive error logging
-    console.group('❌ Task Creation Error');
-    console.error('Error Type:', error.constructor.name);
+    // console.group('❌ Task Creation Error');
+    // console.error('Error Type:', error.constructor.name);
 
-    if (error.response) {
-      // Server responded with an error
-      console.error('Status:', error.response.status);
-      console.error('Data:', error.response.data);
+    // if (error.response) {
+    //   // Server responded with an error
+    //   console.error('Status:', error.response.status);
+    //   console.error('Data:', error.response.data);
 
-      if (error.response.status === 409) {
-        const errorDetails = error.response.data;
-        console.warn('🚨 Duplicate Task Detected:', errorDetails);
+    //   if (error.response.status === 409) {
+    //     const errorDetails = error.response.data;
+    //     console.warn('🚨 Duplicate Task Detected:', errorDetails);
 
-        const duplicateError = new Error(
-          errorDetails.suggestion || 'A similar task already exists'
-        );
-        (duplicateError as any).details = errorDetails;
+    //     const duplicateError = new Error(
+    //       errorDetails.suggestion || 'A similar task already exists'
+    //     );
+    //     (duplicateError as any).details = errorDetails;
 
-        console.groupEnd();
-        throw duplicateError;
-      }
-    } else if (error.request) {
-      // Request was made but no response received
-      console.error('No response received:', error.request);
-    } else {
-      // Something happened in setting up the request
-      console.error('Error setting up request:', error.message);
-    }
+    //     console.groupEnd();
+    //     throw duplicateError;
+    //   }
+    // } else if (error.request) {
+    //   // Request was made but no response received
+    //   console.error('No response received:', error.request);
+    // } else {
+    //   // Something happened in setting up the request
+    //   console.error('Error setting up request:', error.message);
+    // }
 
-    console.groupEnd();
-    throw error;
+    // console.groupEnd();
+    // throw error;
   }
 }
 

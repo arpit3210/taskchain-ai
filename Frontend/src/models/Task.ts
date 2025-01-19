@@ -7,6 +7,7 @@ export interface ITask extends mongoose.Document {
   priority: 'Low' | 'Moderate' | 'High';
   status: 'Not Started' | 'In Progress' | 'Completed';
   createdOn: Date;
+  updatedAt?: Date;
   dueDate?: Date;
   image?: string;
   userId: string;
@@ -31,6 +32,9 @@ const TaskSchema = new mongoose.Schema<ITask>({
   createdOn: {
     type: Date,
     default: Date.now
+  },
+  updatedAt: {
+    type: Date
   },
   dueDate: {
     type: Date,
