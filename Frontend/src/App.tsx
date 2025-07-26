@@ -141,7 +141,7 @@ const App = () => {
                 element={
                   <AuthLayout
                     title="Welcome Back"
-                    description="Sign in to continue to DecentralizedToDo"
+                    description="Sign in to continue to AuraTask"
                   >
                     <SignIn
                       appearance={{
@@ -166,7 +166,7 @@ const App = () => {
                 element={
                   <AuthLayout
                     title="Create Account"
-                    description="Sign up to get started with DecentralizedToDo"
+                    description="Sign up to get started with AuraTask"
                   >
                     <SignUp
                       appearance={{

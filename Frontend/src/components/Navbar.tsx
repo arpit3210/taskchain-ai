@@ -18,9 +18,9 @@ const Navbar = () => {
       <div className="container mx-auto flex justify-between items-center py-4 px-4">
         {/* Logo */}
         <Link to="/" className="flex items-center space-x-2">
-          <img src="/logo.svg" alt="Logo" className="h-8 w-8" />
-          <span className="text-xl font-bold bg-gradient-to-r from-blockchain-primary to-ai-primary bg-clip-text text-transparent">
-            DecentralizedToDo
+          {/* <img src="/logo.svg" alt="Logo" className="h-8 w-8" /> */}
+          <span className="text-2xl font-bold bg-gradient-to-r from-blockchain-primary to-ai-primary bg-clip-text text-transparent">
+            AuraTask
           </span>
         </Link>
     

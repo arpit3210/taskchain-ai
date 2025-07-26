@@ -99,7 +99,7 @@ const TodoistFooter = () => {
               >
                 <path d="M3 0h18c1.7 0 3 1.3 3 3v18c0 1.7-1.3 3-3 3H3c-1.7 0-3-1.3-3-3V3c0-1.7 1.3-3 3-3z"/>
               </svg>
-              <span className="text-xl font-bold text-white">DecentralizedToDo</span>
+              <span className="text-xl font-bold text-white">AuraTask</span>
             </div>
             <p className="text-gray-200 mb-6 leading-relaxed">
               Join millions of people who organize work and life with Todoist.

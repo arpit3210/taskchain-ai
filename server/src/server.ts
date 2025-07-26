@@ -243,6 +243,88 @@ const deleteTaskHandler: RequestHandler<
 // Apply the handler to the route
 app.delete('/api/tasks/:taskId', deleteTaskHandler);
 
+// Update Task Handler
+const updateTaskHandler: RequestHandler<
+  TypedRequestParams,
+  any,
+  Partial<ITask>,
+  TypedQueryParams
+> = async (req: Request, res: Response) => {
+  try {
+    console.group('Task Update Process');
+    const { taskId } = req.params;
+    const { userId } = req.query;
+    console.log('Update task request:', { taskId, userId });
+
+    // Validate user ID
+    if (!userId) {
+      console.warn('Update task failed: No user ID provided');
+      console.groupEnd();
+      return res.status(400).json({ message: 'User ID is required' });
+    }
+
+    // Find the existing task
+    const existingTask = await Task.findOne({ _id: taskId, userId });
+    if (!existingTask) {
+      console.warn('Update task failed: Task not found');
+      console.groupEnd();
+      return res.status(404).json({ message: 'Task not found or unauthorized' });
+    }
+
+    // Parse task data from the request body or form data
+    const updateData: Partial<ITask> = req.file 
+      ? JSON.parse(req.body.taskData) 
+      : req.body;
+
+    // Handle image update
+    if (req.file) {
+      try {
+        // If existing task had an image, delete it from Cloudinary
+        if (existingTask.imagePublicId) {
+          await cloudinary.uploader.destroy(existingTask.imagePublicId);
+        }
+
+        // Upload new image to Cloudinary
+        const cloudinaryResult = await uploadToCloudinary(req.file);
+        updateData.image = cloudinaryResult.secure_url;
+        updateData.imagePublicId = cloudinaryResult.public_id;
+      } catch (uploadError) {
+        console.error('Cloudinary Image Update Error:', uploadError);
+        // Optionally, you can choose to fail the update or continue without image
+      }
+    }
+
+    // Update the task
+    const updatedTask = await Task.findByIdAndUpdate(
+      taskId, 
+      { $set: updateData }, 
+      { new: true, runValidators: true }
+    );
+
+    console.log('Task updated successfully:', updatedTask);
+    console.groupEnd();
+
+    res.status(200).json(updatedTask);
+  } catch (error) {
+    const errorMessage = error instanceof Error 
+      ? error.message 
+      : 'Unknown error during task update';
+
+    console.error('Error updating task:', errorMessage);
+    console.groupEnd();
+
+    res.status(500).json({
+      message: 'Error updating task',
+      error: errorMessage
+    });
+  }
+};
+
+// Register the update task route with file upload support
+app.put('/api/tasks/:taskId', upload.single('image'), async (req: Request, res: Response) => {
+  await updateTaskHandler(req, res);
+});
+
 // Error Handling Middleware
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error('Unhandled error:', err);

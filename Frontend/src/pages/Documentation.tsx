@@ -12,7 +12,7 @@ const Documentation = () => {
             Documentation
           </h1>
           <p className="text-xl text-foreground/70 text-center max-w-2xl mx-auto mb-16">
-            Everything you need to get started with DecentralizedToDo
+            Everything you need to get started with AuraTask
           </p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
